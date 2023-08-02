@@ -1,6 +1,5 @@
 import requests
 import json
-import time
 from parse_data import parse
 from plot import plot
 
@@ -19,6 +18,9 @@ def get_data():
 
 
 if __name__ == "__main__":
+    # Get the data:
     data = get_data()
+    # Parse the data:
     data = parse(data, 0, 0)
+    # Plot the data:
     plot(data)

@@ -4,12 +4,12 @@ from datetime import datetime
 
 
 def plot(data):
-    # convert stirngs to integers
+    # convert strings to floats
     for sensor in data:
         for metric in data[sensor]:
             data[sensor][metric] = [float(i) for i in data[sensor][metric]]
 
-    # Convert epoch timestamps to datetime objects
+    # Convert epoch timestamps to datetime objects( human readable)
     for sensor in data:
         timestamp_list = data[sensor]["timestamp"]
         print(data[sensor]["timestamp"][0])
@@ -21,6 +21,8 @@ def plot(data):
 
     # Create subplots for each metric
     fig, axs = plt.subplots(3)
+
+    # Plot each sensor
     for sensor in data:
         # Plot temperature
         axs[0].plot(
@@ -31,9 +33,12 @@ def plot(data):
         # Plot humidity
         axs[2].plot(data[sensor]["timestamp"], data[sensor]["pressure"], label=sensor)
 
+    # Format the x-axis and make the dates include min/seocnds
     for ax in axs:
         ax.format_xdata = mdates.DateFormatter("%Y-%m-%d %H:%M:%S")
         ax.xaxis.set_major_formatter(ax.format_xdata)
+
+        
     # add titles and legends
     axs[0].set_title("Temperature (C)")
     axs[0].legend()
