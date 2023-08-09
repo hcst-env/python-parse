@@ -12,7 +12,12 @@ def parse(data, sdate, edate):
             sensors.append(sensor)
 
     # Get the data for each sensor
+    
     for sensor in sensors:
+        cont=input("Would you like to include sensor "+sensor+"? (y/n)")
+        if cont == "n":
+            continue
+
         readings = data[sensor]["readings"]
         flattened_data = []
         sensorData = {}
