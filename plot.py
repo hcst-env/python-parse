@@ -31,7 +31,7 @@ def plot(data):
         # Plot pressure
         axs[1].plot(data[sensor]["timestamp"], data[sensor]["pressure"], label=sensor)
         # Plot humidity
-        axs[2].plot(data[sensor]["timestamp"], data[sensor]["pressure"], label=sensor)
+        axs[2].plot(data[sensor]["timestamp"], data[sensor]["humidity"], label=sensor)
 
     # Format the x-axis and make the dates include min/seocnds
     for ax in axs:
