@@ -3,33 +3,66 @@ import requests
 import json
 from parse_data import parse
 from plot import plot
+from tqdm import tqdm
+import math as Math
+
 
 # API url:
-# url = "http://131.215.193.162:4445/jsonbrowser"
-datapath = "./out/"
-indexpath = "./out/index.json"
+url = "http://131.215.193.162:4445/jsonbrowser"
+
+
+def dayEpoch(
+    time,
+):  # gets the epoch time fo the start of the day - this is ing GMT to avoid confuison with DST - so days will be brokn up based on GMT
+    return Math.floor(time / 86400) * 86400
+
+
+# download files with timetamps
+def download_file(url, dest_path, start, end):
+    print(f"{url}?start={start}&end={end}")
+    response = requests.get(f"{url}?start={start}&end={end}", stream=True)
+    total_size = int(response.headers.get("content-length", 0))
+    chunk_size = 1024  # 1 KB
+    with open(dest_path, "wb") as file, tqdm(
+        desc=dest_path,
+        total=total_size,
+        unit="iB",
+        unit_scale=True,
+        unit_divisor=1024,
+    ) as bar:
+        for data in response.iter_content(chunk_size=chunk_size):
+            file.write(data)
+            bar.update(len(data))
 
 
 # Function to get the data from the API:
 def get_data():
     # Get the data from the API:
+    proces = input("Do you want to get new data? (default y) (y/n): ")
 
-    # Convert the response to JSON:
-    with open(indexpath) as f:
+    if not (proces.lower() == "n"):
+        s, e = date_picker()
+        print(s, e)
+        print("Waiting for sam to process the data...")
 
-        data = json.loads(f.read())
-
+        download_file(url, "data.json", s, e)
+        # with open("data.json", "w") as f:
+        #     json.dump(data, f)
     # Return the data:
-    return data
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data, s, e
 
 
 def date_picker():
-    custom_date = input("Do you want a custom date?(Default is all time) (yes/no): ")
-    if custom_date.lower() != "yes":
+    custom_date = input(
+        "Do you want a custom date? (y/n): (It is reccomended as there is a lot of data and it may be very slow) "
+    )
+    if custom_date.lower() != "y":
         return (0, 0)
 
     now = datetime.now()
-    print("Press enter to continue with default")
+
     year = input(f"Enter the start year (default is {now.year}): ")
     year = int(year) if year else now.year
 
@@ -72,9 +105,10 @@ def date_picker():
 
 if __name__ == "__main__":
     # Get the data:
-    data = get_data()
+    print("To Proceed with Default Press Enter")
+    data, s, e = get_data()
     # Parse the data:
-    s, e = date_picker()
-    data = parse(data, s, e, datapath)
+
+    data = parse(data, s, e)
     # Plot the data:
     plot(data)
